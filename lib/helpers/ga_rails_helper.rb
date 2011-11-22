@@ -16,7 +16,7 @@ module GaRailsHelper
     end
     url << "&guid=ON"
 
-    url.gsub! "&", "&amp"
+    url.gsub! "&", "&amp;"
 
     raw %{<img src="#{url}" />}
   end
