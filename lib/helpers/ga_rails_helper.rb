@@ -1,19 +1,19 @@
 module GaRailsHelper
+  # GoogleAnalyticsトラッキングコードの携帯版のimgタグを出力する
+  # ga_account:String アカウントID
+  # ga_rails_path:String GaRailsController#indexまでのパス
   def ga_tag(ga_account, ga_rails_path)
     url = ""
     url << ga_rails_path + "?"
     url << "utmac=" + ga_account
     url << "&utmn=" + rand(0x7fffffff).to_s
-    referer = ENV["HTTP_REFERER"]
-    query = ENV["QUERY_STRING"]
-    path = ENV["REQUEST_URI"]
-    unless referer
-      referer = "-"
-    end
+    referer = request.referer
+    query = request.query_string
+    path = request.request_uri
+
+    referer = "-" if referer.blank?
     url << "&utmr=" + CGI.escape(referer)
-    if path
-      url << "&utmp=" + CGI.escape(path)
-    end
+    url << "&utmp=" + CGI.escape(path) unless path.blank?
     url << "&guid=ON"
 
     url.gsub! "&", "&amp;"
