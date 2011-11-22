@@ -1,0 +1,34 @@
+=GaRails
+
+携帯用google analyticsトラッキングコードをRailsで使えるようにするためのプラグイン
+
+Rails3対応
+
+==インストール
+ % script/plugin install http://github.com/waco/ga_rails.git
+
+==使用方法
+ga_railsコントローラにリクエストを送って1px画像を表示させるものが書かれているので、
+config/routes.rbに適当に定義します。
+
+  match 'ga' => 'ga_rails#index', :as => 'ga'
+
+Helperから呼び出せるようにします。
+
+  module ApplicationHelper
+    include GaRailsHelper
+  end
+
+するとga_tagメソッドが使えるようになります。
+
+  <%= ga_tag('YOUR ACCOUNT HERE', ga_path) %>
+
+=History
+
+- 0.0.1 2011/12/2 公開
+
+=ToDo
+
+- つくったばかり。テストもしてない。
+
+Copyright (c) 2011 waco, released under the MIT license
