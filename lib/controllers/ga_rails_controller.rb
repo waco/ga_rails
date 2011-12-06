@@ -1,6 +1,7 @@
 # Copyright 2009 Google Inc. All Rights Reserved.
 require 'digest/md5'
-require 'open-uri'
+require 'uri'
+require 'net/http'
 
 class GaRailsController < ApplicationController
   #Tracker version.
@@ -96,24 +97,25 @@ class GaRailsController < ApplicationController
   #If request containg utmdebug parameter, exceptions encountered
   #communicating with Google Analytics are thown.
   def send_request_to_google_analytics(utm_url)
-    options = {
-      "method" => "GET",
-      "user_agent" => request.env["HTTP_USER_AGENT"],
-      "header" => "Accepts-Language: #{request.env["HTTP_ACCEPT_LANGUAGE"]}"
+    uri = URI.parse(utm_url)
+    conn = Net::HTTP.new(uri.host)
+    headers = {
+      'User-Agent' => request.user_agent.blank? ? "" : request.user_agent,
+      'Accepts-Language' => request.accept_language.blank? ? "" : request.accept_language
     }
     if params["utmdebug"].blank?
-      OpenURI::open_uri(utm_url, options)
+      conn.get("#{uri.path}?#{uri.query}", headers)
     else
-      OpenURI::open_uri(utm_url, options) {|f| warn f.read }
+      conn.get("#{uri.path}?#{uri.query}", headers){|str| warn str }
     end
   end
 
   #Track a page view, updates all the cookies and campaign tracker,
   #makes a server side request to Google Analytics and writes the transparent
   #gif byte data to the response.
-  def track_page_view()
+  def track_page_view
     time_stamp = Time.now.to_s
-    domain_name = request.env["SERVER_NAME"]
+    domain_name = request.server_name
     domain_name ||= ""
 
     #Get the referrer from the utmr parameter, this is the referrer to the
@@ -131,7 +133,7 @@ class GaRailsController < ApplicationController
     document_path = CGI.unescape(document_path)
 
     account = params["utmac"]
-    user_agent = request.env["HTTP_USER_AGENT"]
+    user_agent = request.user_agent
     user_agent ||= ""
 
     #Try and get visitor cookie from the request.
@@ -156,7 +158,7 @@ class GaRailsController < ApplicationController
       "&utmac=", account,
       "&utmcc=__utma%3D999.999.999.999.999.1%3B",
       "&utmvid=", visitor_id,
-      "&utmip=", get_ip(ENV["REMOTE_ADDR"])
+      "&utmip=", get_ip(request.remote_addr)
     ].join
 
     send_request_to_google_analytics(utm_url)

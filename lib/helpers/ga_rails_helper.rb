@@ -18,6 +18,6 @@ module GaRailsHelper
 
     url.gsub! "&", "&amp;"
 
-    raw %{<img src="#{url}" />}
+    raw %{<img src="#{url}" width="1" height="1" alt="" />}
   end
 end
