@@ -98,15 +98,13 @@ class GaRailsController < ApplicationController
   #communicating with Google Analytics are thown.
   def send_request_to_google_analytics(utm_url)
     uri = URI.parse(utm_url)
-    conn = Net::HTTP.new(uri.host)
-    headers = {
-      'User-Agent' => request.user_agent.blank? ? "" : request.user_agent,
-      'Accepts-Language' => request.accept_language.blank? ? "" : request.accept_language
-    }
-    if params["utmdebug"].blank?
-      conn.get("#{uri.path}?#{uri.query}", headers)
-    else
-      conn.get("#{uri.path}?#{uri.query}", headers){|str| warn str }
+    req = Net::HTTP::Get.new("#{uri.path}?#{uri.query}")
+    req.add_field 'User-Agent', request.user_agent.blank? ? "" : request.user_agent
+    req.add_field 'Accepts-Language', request.accept_language.blank? ? "" : request.accept_language
+    res = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(req) }
+
+    unless params["utmdebug"].blank?
+      warn res.body
     end
   end
 
