@@ -68,7 +68,7 @@ class GaRailsController < ApplicationController
   def get_visitor_id(guid, account, user_agent, cookie)
 
     #If there is a value in the cookie, don't change it.
-    return cookie unless cookie
+    return cookie unless cookie.blank?
 
     message = ""
     if guid && guid != ""
@@ -103,9 +103,7 @@ class GaRailsController < ApplicationController
     req.add_field 'Accepts-Language', request.accept_language.blank? ? "" : request.accept_language
     res = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(req) }
 
-    unless params["utmdebug"].blank?
-      warn res.body
-    end
+    warn res.body unless params["utmdebug"].blank?
   end
 
   #Track a page view, updates all the cookies and campaign tracker,
