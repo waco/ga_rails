@@ -70,18 +70,17 @@ class GaRailsController < ApplicationController
     #If there is a value in the cookie, don't change it.
     return cookie unless cookie.blank?
 
-    message = ""
-    if guid && guid != ""
+    unless guid.blank?
       #Create the visitor id using the guid.
-      message = guid + account
+      message = "#{guid}#{account}"
     else
       #otherwise this is a new user, create a new random id.
-      message = user_agent + Digest::MD5.hexdigest(get_random_number)
+      message = "#{user_agent}#{Digest::MD5.hexdigest(get_random_number)}"
     end
 
     md5_string = Digest::MD5.hexdigest(message)
 
-    return "0x" + md5_string
+    return "0x#{md5_string}"
   end
 
   #Get a random number string.
