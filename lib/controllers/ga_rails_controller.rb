@@ -80,7 +80,7 @@ class GaRailsController < ApplicationController
 
     md5_string = Digest::MD5.hexdigest(message)
 
-    return "0x#{md5_string}"
+    return "0x#{md5_string[0, 16]}"
   end
 
   #Get a random number string.
@@ -101,6 +101,8 @@ class GaRailsController < ApplicationController
     req.add_field 'User-Agent', request.user_agent.blank? ? "" : request.user_agent
     req.add_field 'Accepts-Language', request.accept_language.blank? ? "" : request.accept_language
     res = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(req) }
+
+    puts utm_url
 
     warn res.body unless params["utmdebug"].blank?
   end
