@@ -8,24 +8,25 @@ Rails3対応
  % script/plugin install http://github.com/waco/ga_rails.git
 
 ==使用方法
-ga_railsコントローラにリクエストを送って1px画像を表示させるものが書かれているので、
-config/routes.rbに適当に定義します。
+config/initializers配下でトラッキング用のアカウントを設定します。
 
-  match 'ga' => 'ga_rails#index', :as => 'ga'
+  YourApp::Application.config.ga_rails.mobile_account = 'MO-XXXXXXXX-X'
 
-Helperから呼び出せるようにします。
+ControllerにGaRailsをincludeして、before_filterなどでトラックしたいタイミングで
+track_ga_railsを呼び出します。
 
-  module ApplicationHelper
-    include GaRailsHelper
+  class ApplicationController < ActionController::Base
+    include GaRails
+    before_filter do track_ga_rails if request.mobile?; end
   end
 
-するとga_tagメソッドが使えるようになります。
-
-  <%= ga_tag('YOUR ACCOUNT HERE', ga_path) %>
+track_ga_railsは好きなタイミングで呼び出すことができます。
+オプションとして、eventを渡すとイベントを発生させることができます（まだ試してないけど）
 
 =History
 
 - 0.0.1 2011/12/2 公開
+- 0.0.2 2011/12/21 大幅書き換え
 
 =ToDo
 
